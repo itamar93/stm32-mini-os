@@ -20,13 +20,13 @@ Reset_Handler:
     ldr r0, =_sdata
     ldr r1, =_edata
     ldr r2, =_etext
-    movs r3, #0
+    movs r3, #0 /* Offset counter = 0 */
     b LoopCopyDataInit
 
 CopyDataInit:
-    ldr r4, [r2, r3]
-    str r4, [r0, r3]
-    adds r3, r3, #4
+    ldr r4, [r2, r3]  /* Load from FLASH (Source + Offset) */
+    str r4, [r0, r3]  /* Store to RAM (Dest + Offset) */
+    adds r3, r3, #4   /* Increment offset by 4 bytes */
 
 LoopCopyDataInit:
     adds r4, r0, r3
