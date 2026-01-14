@@ -1,3 +1,5 @@
+ENTRY(Reset_Handler)
+
 MEMORY
 {
     FLASH (RX) : ORIGIN = 0x08000000, LENGTH = 1024K
@@ -13,16 +15,25 @@ SECTIONS
         *(.isr_vector)
         *(.text)
         *(.rodata)
+        . = ALIGN(4);
+        _etext = .;
     } > FLASH
 
-    .data : AT(ADDR(.text) + SIZEOF(.text))
+    .data :
     {
+        . = ALIGN(4);
         _sdata = .;
         *(.data)
-    } > SRAM
+        . = ALIGN(4);
+        _edata = .;
+    } > SRAM AT > FLASH
 
     .bss :
     {
+        . = ALIGN(4);
+        _sbss = .;
         *(.bss)
+        . = ALIGN(4);
+        _ebss = .;
     } > SRAM
 }
