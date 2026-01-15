@@ -41,15 +41,15 @@ void Reset_Handler(void) {
         *dst++ = *src++;
     }
 
-    /* 2. Zero fill the .bss segment */
+    /* Zero fill the .bss segment */
     uint32_t *bss = &_sbss;
     while(bss < &_ebss) {
         *bss++ = 0;
     }
 
-    /* 3. Jump to Kernel Main */
+    /* Jump to Kernel Main */
     kmain();
 
-    /* 4. Trap if main returns (Safety) */
+    /* Trap if main returns */
     while(1);
 }

@@ -27,4 +27,10 @@
 
 #define GPIOD_EN           (1U << 3)
 
+/* SysTick Registers */
+#define SYSTICK_BASE       0xE000E010UL
+#define SYSTICK_CTRL       (*((volatile uint32_t *)(SYSTICK_BASE + 0x0)))
+#define SYSTICK_RELOAD     (*((volatile uint32_t *)(SYSTICK_BASE + 0x4)))
+#define SYSTICK_CURRENT    (*((volatile uint32_t *)(SYSTICK_BASE + 0x8)))
+
 #endif

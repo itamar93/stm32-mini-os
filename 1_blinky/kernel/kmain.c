@@ -1,9 +1,8 @@
 #include "../drivers/led.h"
+#include "../drivers/systick.h"
 
 void delay(void) {
-    for(int i = 0; i < 1000000; i++) {
-        __asm("nop");
-    }
+    systick_delay_ms(500);
 }
 
 void kmain(void) {
