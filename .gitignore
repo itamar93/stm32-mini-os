@@ -1,0 +1,5 @@
+# Build folders
+build/
+*.o
+*.elf
+*.map

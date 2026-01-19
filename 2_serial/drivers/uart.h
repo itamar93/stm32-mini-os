@@ -1,0 +1,23 @@
+#ifndef UART_H
+#define UART_H
+
+#include <stdint.h>
+#include "../arch/stm32f407/include/regs.h"
+#define UART2_TX_PIN 2
+#define UART2_RX_PIN 3
+#define UART2_AF    7
+#define UART2_BAUDRATE 9600
+#define APB1_CLK_FREQ 16000000UL
+#define UART2_CLOCK_ENABLE_BIT (1U << 17)
+#define UART2_ENABLE_BIT (1U << 13)
+#define UART2_TE_BIT     (1U << 3)
+#define UART2_RE_BIT     (1U << 2)
+#define UART2_TXE_BIT    (1U << 7)
+#define UART2_RXNE_BIT   (1U << 5)
+
+void uart_init(void);
+void uart_send_char(char c);
+char uart_receive_char(void);
+void uart_write(char *str);
+
+#endif
