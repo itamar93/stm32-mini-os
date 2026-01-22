@@ -5,6 +5,7 @@ BUILD_DIR = build
 SRCS  = $(wildcard arch/stm32f407/boot/*.c)
 SRCS += $(wildcard drivers/*.c)
 SRCS += $(wildcard kernel/*.c)
+SRCS += $(wildcard utils/*.c)
 
 # Convert source file paths to object file paths in build directory
 OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRCS))
@@ -12,7 +13,7 @@ OBJS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRCS))
 CC = arm-none-eabi-gcc
 
 # Include paths for header files
-INCLUDE_DIRS = -Iarch/stm32f407/include -Idrivers
+INCLUDE_DIRS = -Iarch/stm32f407/include -Idrivers -Iutils
 
 CFLAGS = -c -mcpu=cortex-m4 -mthumb -std=gnu11 -g -Wall -O0 $(INCLUDE_DIRS)
 LDFLAGS = -nostdlib -T $(LINKER_SCRIPT) -Wl,-Map=$(BUILD_DIR)/$(TARGET_NAME).map

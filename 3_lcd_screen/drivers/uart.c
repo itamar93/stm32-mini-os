@@ -45,18 +45,19 @@ void uart_init(void) {
     enable_uart();
 }
 
-void uart_send_char(char c) {
+void uart_send_char(uint32_t c) {
     while (!(USART2_SR & UART2_TXE_BIT)); // Wait for Empty
-    USART2_DR = (uint8_t)c;
+    USART2_DR = c;
 }
 
-char uart_receive_char(void) {
+uint32_t uart_receive_char(void) {
     while (!(USART2_SR & UART2_RXNE_BIT)); // Wait for Data
-    return (char)(USART2_DR & 0xFF);
+    return USART2_DR & 0xFF;
 }
 
-void uart_write(char *str) {
-    while (*str) {
-        uart_send_char(*str++);
+void uart_send_data(uint8_t *data, uint32_t length) {
+    for (uint32_t i = 0; i < length; i++) {
+        while (!(USART2_SR & UART2_TXE_BIT)); // Wait for Empty
+        USART2_DR = data[i];
     }
 }

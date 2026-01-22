@@ -16,8 +16,8 @@
 #define UART2_RXNE_BIT   (1U << 5)
 
 void uart_init(void);
-void uart_send_char(char c);
-char uart_receive_char(void);
-void uart_write(char *str);
+void uart_send_char(uint32_t c);
+uint32_t uart_receive_char(void);
+void uart_send_data(uint8_t *data, uint32_t length);
 
 #endif
