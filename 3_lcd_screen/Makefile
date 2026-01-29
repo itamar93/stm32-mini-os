@@ -3,7 +3,7 @@ LINKER_SCRIPT = linker.ld
 BUILD_DIR = build
 
 SRCS  = $(wildcard arch/stm32f407/boot/*.c)
-SRCS += $(wildcard drivers/*.c)
+SRCS += $(wildcard drivers/*/*.c)
 SRCS += $(wildcard kernel/*.c)
 SRCS += $(wildcard utils/*.c)
 
@@ -26,6 +26,7 @@ $(BUILD_DIR)/%.o: %.c
 
 $(BUILD_DIR)/$(TARGET_NAME).elf: $(OBJS)
 	$(CC) $(LDFLAGS) $^ -o $@
+	arm-none-eabi-size $@
 
 clean:
 	rm -rf $(BUILD_DIR)

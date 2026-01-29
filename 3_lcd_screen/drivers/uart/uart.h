@@ -2,7 +2,7 @@
 #define UART_H
 
 #include <stdint.h>
-#include "../arch/stm32f407/include/regs.h"
+#include "../gpio/gpio.h"
 #define UART2_TX_PIN 2
 #define UART2_RX_PIN 3
 #define UART2_AF    7
@@ -14,9 +14,9 @@
 #define UART2_RE_BIT     (1U << 2)
 #define UART2_TXE_BIT    (1U << 7)
 #define UART2_RXNE_BIT   (1U << 5)
+#define UART2_RCC_EN       (1U << 17)
 
 void uart_init(void);
-void uart_send_char(uint32_t c);
 uint32_t uart_receive_char(void);
 void uart_send_data(uint8_t *data, uint32_t length);
 

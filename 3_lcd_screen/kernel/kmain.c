@@ -1,6 +1,6 @@
-#include "../drivers/led.h"
-#include "../drivers/systick.h"
-#include "../drivers/uart.h"
+#include "../drivers/led/led.h"
+#include "../drivers/systick/systick.h"
+#include "../drivers/uart/uart.h"
 #include "../utils/string_utils.h"
 
 void delay(void) {
@@ -14,12 +14,12 @@ void print_message(const char *msg) {
 void kmain(void) {
     uart_init();
     led_init();
-    print_message("Hello, World!\n\r");
+    print_message("3_lcd_screen\n\r");
     while(1) {
-        print_message("LED ON\n\r");
+        print_message("LED HIGH\n\r");
         led_on();
         delay();
-        print_message("LED OFF\n\r");
+        print_message("LED LOW\n\r");
         led_off();
         delay();
     }

@@ -1,7 +1,8 @@
 #ifndef LED_H
 #define LED_H
 
-#include "../arch/stm32f407/include/regs.h"
+#include "../gpio/gpio.h"
+#define LED_GPIO_PORT GPIO_PORT_D
 #define LED_PIN 12
 
 void led_init(void);
