@@ -11,11 +11,8 @@
 #define SCK_PIN 5 // port A
 #define MISO_PIN 6 // port A
 #define MOSI_PIN 7 // port A
-#define CS_PIN 4 // port A
 
 void spi_init(void);
-void cs_enable(void);
-void cs_disable(void);
 void spi_send_data(uint8_t *data, uint32_t length);
 void spi_receive_data(uint8_t *buffer, uint32_t length);
 

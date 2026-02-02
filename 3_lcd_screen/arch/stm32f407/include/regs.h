@@ -50,6 +50,11 @@ typedef struct {
 #define GPIOA_BASE         (AHB1PERIPH_BASE + GPIOA_OFFSET)
 #define GPIOA ((GPIO_TypeDef *)GPIOA_BASE)
 
+/* GPIOC Registers */
+#define GPIOC_OFFSET       0x0800UL
+#define GPIOC_BASE         (AHB1PERIPH_BASE + GPIOC_OFFSET)
+#define GPIOC ((GPIO_TypeDef *)GPIOC_BASE)
+
 /* GPIOD Registers */
 #define GPIOD_OFFSET       0xC00UL
 #define GPIOD_BASE         (AHB1PERIPH_BASE + GPIOD_OFFSET)

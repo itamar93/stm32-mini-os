@@ -2,6 +2,7 @@
 #include "../drivers/systick/systick.h"
 #include "../drivers/uart/uart.h"
 #include "../utils/string_utils.h"
+#include "../drivers/st7789/st7789.h"
 
 void delay(void) {
     systick_delay_ms(2000);
@@ -12,15 +13,19 @@ void print_message(const char *msg) {
 }
 
 void kmain(void) {
-    uart_init();
-    led_init();
-    print_message("3_lcd_screen\n\r");
+    ST7789_Init();
+    
+    // Fill screen with white color in RGB444 format
+    // RGB444: 0xFFF (white)
+    uint16_t white = 0xFFF;
+    
+    // Draw a rectangle of white pixels (10x10) at position (10, 10)
+    for (int y = 10; y < 20; y++) {
+        for (int x = 10; x < 20; x++) {
+            ST7789_DrawPixel(x, y, white);
+        }
+    }
+    
     while(1) {
-        print_message("LED HIGH\n\r");
-        led_on();
-        delay();
-        print_message("LED LOW\n\r");
-        led_off();
-        delay();
     }
 }

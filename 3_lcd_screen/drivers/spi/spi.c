@@ -8,8 +8,6 @@ static void enable_clocks(void) {
 }
 
 static void configure_pins() {
-    // configure PA4 (CS) to Output Mode
-    gpio_set_mode(GPIOA, CS_PIN, GPIO_MODE_OUTPUT);
     // configure PA5 (SCK), PA6 (MISO), PA7 (MOSI) to Alternate Function Mode
     gpio_set_mode(GPIOA, SCK_PIN, GPIO_MODE_ALTERNATE);
     gpio_set_mode(GPIOA, MISO_PIN, GPIO_MODE_ALTERNATE);
@@ -30,7 +28,7 @@ static void configure_spi_parameters(void) {
     // Master mode (bit 2)
     SPI1->CR1 |= (1U << 2);
     // Baud rate prescaler to divide by 2 (bits 5:3)
-    SPI1->CR1 &= ~(7U << 3);
+    SPI1->CR1 &= ~(2U << 3);
     // enable SPI (bit 6)
     SPI1->CR1 |= (1U << 6);
     // MSB first (bit 7)
@@ -54,14 +52,6 @@ void spi_init(void) {
     configure_pins();
     // configure SPI parameters
     configure_spi_parameters();
-}
-
-void cs_enable(void) {
-    gpio_write_pin(GPIOA, CS_PIN, GPIO_PIN_LOW);
-}
-
-void cs_disable(void) {
-    gpio_write_pin(GPIOA, CS_PIN, GPIO_PIN_HIGH);
 }
     
 
