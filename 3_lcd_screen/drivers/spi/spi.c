@@ -21,16 +21,15 @@ static void configure_pins() {
 }
 
 static void configure_spi_parameters(void) {
-    // Clock phase set to second edge (bit 0)
+    // Clock phase set to first edge (bit 0)
     SPI1->CR1 &= ~(1U << 0);
     // Clock polarity low when idle (bit 1)
     SPI1->CR1 &= ~(1U << 1);
     // Master mode (bit 2)
     SPI1->CR1 |= (1U << 2);
     // Baud rate prescaler to divide by 2 (bits 5:3)
-    SPI1->CR1 &= ~(2U << 3);
-    // enable SPI (bit 6)
-    SPI1->CR1 |= (1U << 6);
+    SPI1->CR1 &= ~(7U << 3);
+    SPI1->CR1 |= (0U << 3); // f_PCLK / 2
     // MSB first (bit 7)
     SPI1->CR1 &= ~(1U << 7);
     // Software slave management: enable (bit 9) and set SSI (bit 8)
@@ -43,6 +42,9 @@ static void configure_spi_parameters(void) {
     SPI1->CR1 &= ~(1U << 13);
     // unidirecional data mode (bit 15)
     SPI1->CR1 &= ~(1U << 15);
+    SPI1->CR1 |= (BIDI_MODE << 15); // bidirectional mode
+    // enable SPI (bit 6) - IMPORTANT !! SHOULD BE THE LAST STEP !!
+    SPI1->CR1 |= (1U << 6);
 }
 
 void spi_init(void) {
@@ -56,6 +58,12 @@ void spi_init(void) {
     
 
 void spi_send_data(uint8_t *data, uint32_t length) {
+    if (BIDI_MODE) {
+        SPI1->CR1 &= ~(1U << 6); // disable SPI
+        // Configure for transmission
+        SPI1->CR1 |= (1U << 14); // set BIDIOE for transmission
+        SPI1->CR1 |= (1U << 6);  // enable SPI
+    }
     for (uint32_t i = 0; i < length; i++) {
         /* wait until TXE is set */
         while (!(SPI1->SR & SPI_TXE_BIT)) {}
@@ -72,6 +80,12 @@ void spi_send_data(uint8_t *data, uint32_t length) {
 }
 
 void spi_receive_data(uint8_t *buffer, uint32_t length) {
+    if (BIDI_MODE) {
+        SPI1->CR1 &= ~(1U << 6); // disable SPI
+        // Configure for reception
+        SPI1->CR1 &= ~(1U << 14); // clear BIDIOE for reception
+        SPI1->CR1 |= (1U << 6);  // enable SPI
+    }
     for (uint32_t i = 0; i < length; i++) {
         // send dummy byte to generate clock
         while (!(SPI1->SR & SPI_TXE_BIT)) {}

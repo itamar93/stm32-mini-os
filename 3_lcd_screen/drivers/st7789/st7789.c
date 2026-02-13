@@ -12,10 +12,11 @@ static void ST7789_Deselect(void) {
 }
 
 static void ST7789_Reset(void) {
-    gpio_write_pin(ST7789_GPIO_STRUCT, ST7789_RESET_PIN, GPIO_PIN_LOW);
-    systick_delay_us(10);
     gpio_write_pin(ST7789_GPIO_STRUCT, ST7789_RESET_PIN, GPIO_PIN_HIGH);
-    systick_delay_ms(120);
+    gpio_write_pin(ST7789_GPIO_STRUCT, ST7789_RESET_PIN, GPIO_PIN_LOW);
+    systick_delay_us(10); // > 10us
+    gpio_write_pin(ST7789_GPIO_STRUCT, ST7789_RESET_PIN, GPIO_PIN_HIGH);
+    systick_delay_ms(120); // > 120ms
 }
 
 static void ST7789_SendCommand(uint8_t cmd) {
@@ -68,21 +69,31 @@ void ST7789_Init(void) {
     gpio_set_mode(ST7789_GPIO_STRUCT, ST7789_RESET_PIN, GPIO_MODE_OUTPUT); // configure GPIO for RESET pin
     gpio_set_mode(ST7789_GPIO_STRUCT, ST7789_CS_PIN, GPIO_MODE_OUTPUT); // configure GPIO for CS pin
     gpio_set_mode(ST7789_GPIO_STRUCT, ST7789_DC_PIN, GPIO_MODE_OUTPUT); // configure GPIO for DC pin
+    gpio_set_mode(ST7789_GPIO_STRUCT, ST7789_BL_PIN, GPIO_MODE_OUTPUT);
+    gpio_write_pin(ST7789_GPIO_STRUCT, ST7789_BL_PIN, GPIO_PIN_LOW);
+    // cs deselect
+    ST7789_Deselect();
     // reset the display
     ST7789_Reset();
+    // software reset
+    // ST7789_SendCommand(0x01); //TODO: add define for software reset
+    // systick_delay_ms(150);
     // sleep out command
     ST7789_SendCommand(ST7789_SLPOUT);
     systick_delay_ms(120);
-    // Set Color Format to RGB444
+    // Set Color Format to RGB565
     ST7789_SendCommand(ST7789_COLMOD); // COLMOD: Interface Pixel Format
-    uint8_t rgb_data = ST7789_COLMOD_RGB444;
-    ST7789_SendData(&rgb_data, 1);    // 12-bit/pixel (RGB444)
+    uint8_t rgb_data = ST7789_COLMOD_RGB565;
+    ST7789_SendData(&rgb_data, 1);    // 12-bit/pixel (RGB565)
     // Memory Data Access Control
     ST7789_SendCommand(ST7789_MADCTL); // MADCTL: Memory Data Access Control
     uint8_t madctl_data = ST7789_MADCTL_Default;
     ST7789_SendData(&madctl_data, 1); // Default orientation
+    // inversion on
+    ST7789_SendCommand(ST7789_INVON); // INVON: Inversion On
     // Turn-On Display
     ST7789_SendCommand(ST7789_DISPON); // DISPON: Display On
+    // systick_delay_ms(120);
 }
 
 void ST7789_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
@@ -93,16 +104,32 @@ void ST7789_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
     ST7789_RowAddressSet(y, y);
     
     // Send RAMWR command
-    gpio_write_pin(ST7789_GPIO_STRUCT, ST7789_DC_PIN, GPIO_PIN_LOW);
-    ST7789_Select();
-    uint8_t ramwr_cmd = ST7789_RAMWR;
-    spi_send_data(&ramwr_cmd, 1);
-    ST7789_Deselect();
+    ST7789_SendCommand(ST7789_RAMWR);
     
-    // Byte 1: RRRRGGGG
-    // Byte 2: BBBB0000
+    // Byte 1: RRRRRGGG
+    // Byte 2: GGGBBBBB
     uint8_t data[2];
-    data[0] = (uint8_t)((color >> 4) & 0xFF); // High byte
-    data[1] = (uint8_t)((color & 0xF) << 4);        // Low byte
+    data[0] = (uint8_t)((color >> 8) & 0xFF); // High byte
+    data[1] = (uint8_t)(color & 0xFF);        // Low byte
     ST7789_SendData(data, 2);
+}
+
+void ST7789_FillScreen(uint16_t color) {
+    ST7789_ColumnAddressSet(0, ST7789_WIDTH - 1);
+    ST7789_RowAddressSet(0, ST7789_HEIGHT - 1);
+    
+    // Send RAMWR command
+    ST7789_SendCommand(ST7789_RAMWR);
+    
+    // Prepare a buffer of pixel block (64 pixels at a time)
+    uint8_t data[128]; // 64 pixels * 2 bytes/pixel
+    for (int i = 0; i < 64; i++) {
+        data[2*i] = (uint8_t)((color >> 8) & 0xFF); // High byte
+        data[2*i + 1] = (uint8_t)(color & 0xFF);   // Low byte
+    }
+    
+    // Send pixel data in chunks until the entire screen is filled
+    for (int i = 0; i < (ST7789_WIDTH * ST7789_HEIGHT) / 64; i++) {
+        ST7789_SendData(data, sizeof(data));
+    }
 }

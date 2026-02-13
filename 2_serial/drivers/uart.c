@@ -45,11 +45,6 @@ void uart_init(void) {
     enable_uart();
 }
 
-void uart_send_char(uint32_t c) {
-    while (!(USART2_SR & UART2_TXE_BIT)); // Wait for Empty
-    USART2_DR = c;
-}
-
 uint32_t uart_receive_char(void) {
     while (!(USART2_SR & UART2_RXNE_BIT)); // Wait for Data
     return USART2_DR & 0xFF;

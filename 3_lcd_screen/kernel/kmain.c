@@ -8,21 +8,15 @@ void delay(void) {
     systick_delay_ms(2000);
 }
 
-void print_message(const char *msg) {
-    uart_send_data((uint8_t*)msg, my_strlen(msg));
-}
-
 void kmain(void) {
     ST7789_Init();
+    uint16_t color = 0xfac0;
     
-    // Fill screen with white color in RGB444 format
-    // RGB444: 0xFFF (white)
-    uint16_t white = 0xFFF;
-    
-    // Draw a rectangle of white pixels (10x10) at position (10, 10)
-    for (int y = 10; y < 20; y++) {
-        for (int x = 10; x < 20; x++) {
-            ST7789_DrawPixel(x, y, white);
+    ST7789_FillScreen(color);
+
+    for (uint16_t x = 0; x < 20; x++) {
+        for (uint16_t y = 0; y < 20; y++) {
+            ST7789_DrawPixel(x, y, 0x001f); // Blue square
         }
     }
     

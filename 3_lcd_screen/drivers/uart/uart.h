@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include "../gpio/gpio.h"
-#define UART2_TX_PIN 2
+#define UART2_TX_PIN 2 // Port A
 #define UART2_RX_PIN 3
 #define UART2_AF    7
 #define UART2_BAUDRATE 9600
