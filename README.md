@@ -54,7 +54,7 @@ A simple LED blinking application that toggles an LED every 500ms.
 ### 2. Serial Echo (`apps/serial_echo`)
 UART communication demo that sends messages via serial port and controls LED.
 - Demonstrates: UART, GPIO, SysTick timer
-- Baudrate: 115200
+- Baudrate: 9600
 - Connect via: PuTTY, minicom, or any serial terminal
 
 ### 3. LCD Demo (`apps/lcd_demo`)
