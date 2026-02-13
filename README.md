@@ -1,23 +1,103 @@
 # stm32-mini-os
 
-=== TODO ====
-- setup GNU Arm Embedded Toolchain
-- setup OpenOCD
+A minimal embedded operating system for STM32F407 microcontroller, demonstrating various hardware interfaces and drivers.
 
-=============
-=== RESOURCES ===
-- Reference Manuale (RM): details registers, bits' roles, register configuration, etc.
-- Datasheet: provides functional overview, memory map, block diagrams, pinout, electrical characteristics, etc.
-- User Manual (UM): describes the development board, which components on the board are exist and how they connected to the microcontroller
-- Arm Generic User Manual: provides information on the core peripherals, such as the System Timer, Floating-Point Unit, System Control Block, Memory Protection Unit, Nested Vectored Interrupt Controller. In addition, provides information on the ISR, Execption Model, Fault handling, Power Managment, etc. 
+## Project Structure
 
-=============
-=== PERIPHERALS ===
-- base address: 0x40000000
-- APB: Advanced Peripheral Bus
-- AHB: Advanced High-Performance Bus
-- APB1, APB2: buses saved for lower bandwidth peripherals
-- AHB1, AHB2: buses for high-speed data transfer peripherals
-- By default, the clock to all unused peripherals is disabled, to save power (clock gating technique)
-- RCC (Reset and Clock Control) is the peripheral that controlls buses' clock
-- registers naming convention: peripheral + _ + register name. e.g: RCC_AHB1ENR
+```
+stm32-mini-os/
+├── arch/                   # Architecture-specific code (startup, system files)
+├── drivers/                # Hardware drivers (GPIO, UART, SPI, LCD, etc.)
+├── lib/                    # Shared utility libraries
+├── apps/                   # Example applications
+│   ├── blinky/            # LED blink demo
+│   ├── serial_echo/       # UART serial communication demo
+│   └── lcd_demo/          # LCD display demo
+├── docs/                   # Documentation
+├── scripts/                # Helper scripts (flash, debug)
+├── cfg/                    # Configuration files
+├── Makefile               # Build system
+└── linker.ld              # Linker script
+```
+
+## Building
+
+Build any application using the `APP` variable:
+
+```bash
+# Build blinky app (default)
+make
+
+# Build specific app
+make APP=blinky
+make APP=serial_echo
+make APP=lcd_demo
+
+# Clean build artifacts
+make clean
+```
+
+## Flashing
+
+Flash the built firmware to your STM32F407 board:
+
+```bash
+make flash APP=blinky
+```
+
+## Applications
+
+### 1. Blinky (`apps/blinky`)
+A simple LED blinking application that toggles an LED every 500ms.
+- Demonstrates: GPIO control, SysTick timer
+
+### 2. Serial Echo (`apps/serial_echo`)
+UART communication demo that sends messages via serial port and controls LED.
+- Demonstrates: UART, GPIO, SysTick timer
+- Baudrate: 9600
+- Connect via: PuTTY, minicom, or any serial terminal
+
+### 3. LCD Demo (`apps/lcd_demo`)
+Display demo using ST7789 LCD driver over SPI.
+- Demonstrates: SPI, LCD control, GPIO, SysTick timer
+- Fills screen with color and draws a blue square
+
+## Hardware Requirements
+
+- STM32F407 Discovery Board
+- ST-LINK programmer (integrated on Discovery board)
+- Optional: ST7789 LCD module (for lcd_demo)
+
+## Setup
+
+See [docs/setup.md](docs/setup.md) for detailed setup instructions including:
+- GNU Arm Embedded Toolchain installation
+- OpenOCD installation
+- Hardware connections
+
+## Architecture
+
+### Drivers
+- **GPIO**: General Purpose I/O control
+- **LED**: LED control wrapper
+- **UART**: Serial communication (USART2)
+- **SPI**: Serial Peripheral Interface (SPI1)
+- **SysTick**: System tick timer for delays
+- **ST7789**: LCD display driver
+
+### Startup Flow
+1. Reset_Handler (in `arch/stm32f407/boot/startup.c`)
+2. Initialize `.data` section
+3. Zero `.bss` section
+4. Call `kmain()` from app
+
+## Resources
+
+- Reference Manual (RM): Register details, configuration
+- Datasheet: Functional overview, memory map, pinout
+- User Manual (UM): Development board details
+- ARM Generic User Manual: Core peripherals documentation
+
+## License
+
+See [LICENSE](LICENSE) file for details.
