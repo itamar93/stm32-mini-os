@@ -1,6 +1,6 @@
 #include "drivers/led/led.h"
-#include "drivers/systick/systick.h"
-#include "drivers/uart/uart.h"
+#include "hal/systick/systick.h"
+#include "hal/uart/uart.h"
 #include "lib/string_utils.h"
 
 void delay(void) {

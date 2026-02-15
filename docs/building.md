@@ -91,19 +91,20 @@ A default OpenOCD configuration is provided in `cfg/openocd.cfg` for the STM32F4
 
 ```
 .
-├── arch/              - Architecture-specific startup code
-├── drivers/           - Hardware drivers (shared across all apps)
-├── lib/              - Utility libraries (string, stdout)
-├── apps/             - Application entry points
+├── platform/          - Platform-specific code (startup, registers)
+├── hal/               - Hardware Abstraction Layer (GPIO, UART, SPI, SysTick)
+├── drivers/           - Device drivers (LED, ST7789 LCD)
+├── lib/               - Utility libraries (string, stdout)
+├── apps/              - Application entry points
 │   ├── blinky/
 │   ├── serial_echo/
 │   └── lcd_demo/
-├── include/          - Global headers
-├── docs/             - Documentation
-├── scripts/          - Helper scripts
-├── cfg/              - Configuration files
-├── Makefile          - Build system
-└── linker.ld         - Linker script
+├── include/           - Global headers
+├── docs/              - Documentation
+├── scripts/           - Helper scripts
+├── cfg/               - Configuration files
+├── Makefile           - Build system
+└── linker.ld          - Linker script
 ```
 
 ## Troubleshooting

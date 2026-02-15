@@ -1,7 +1,7 @@
 #ifndef ST7789_H
 #define ST7789_H
 
-#include "../spi/spi.h"
+#include "../../hal/spi/spi.h"
 #define ST7789_WIDTH 240
 #define ST7789_HEIGHT 320
 #define ST7789_GPIO_STRUCT GPIOC

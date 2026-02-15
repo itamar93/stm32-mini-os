@@ -1,7 +1,7 @@
 #ifndef LED_H
 #define LED_H
 
-#include "../gpio/gpio.h"
+#include "../../hal/gpio/gpio.h"
 #define LED_GPIO_PORT GPIO_PORT_D
 #define LED_PIN 12
 

@@ -6,8 +6,9 @@ A minimal embedded operating system for STM32F407 microcontroller, demonstrating
 
 ```
 stm32-mini-os/
-├── arch/                   # Architecture-specific code (startup, system files)
-├── drivers/                # Hardware drivers (GPIO, UART, SPI, LCD, etc.)
+├── platform/               # Platform-specific code (startup, registers)
+├── hal/                    # Hardware Abstraction Layer (GPIO, UART, SPI, SysTick)
+├── drivers/                # Device drivers (LED, ST7789 LCD)
 ├── lib/                    # Shared utility libraries
 ├── apps/                   # Example applications
 │   ├── blinky/            # LED blink demo
@@ -77,16 +78,18 @@ See [docs/setup.md](docs/setup.md) for detailed setup instructions including:
 
 ## Architecture
 
-### Drivers
+### HAL (Hardware Abstraction Layer)
 - **GPIO**: General Purpose I/O control
-- **LED**: LED control wrapper
 - **UART**: Serial communication (USART2)
 - **SPI**: Serial Peripheral Interface (SPI1)
 - **SysTick**: System tick timer for delays
+
+### Drivers
+- **LED**: LED control wrapper
 - **ST7789**: LCD display driver
 
 ### Startup Flow
-1. Reset_Handler (in `arch/stm32f407/boot/startup.c`)
+1. Reset_Handler (in `platform/stm32f407/boot/startup.c`)
 2. Initialize `.data` section
 3. Zero `.bss` section
 4. Call `kmain()` from app

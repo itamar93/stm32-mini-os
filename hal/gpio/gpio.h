@@ -2,7 +2,7 @@
 #define GPIO_H
 
 #include <stdint.h>
-#include "../../arch/stm32f407/include/regs.h"
+#include "../../platform/stm32f407/include/regs.h"
 
 enum {
     GPIO_MODE_INPUT = 0,

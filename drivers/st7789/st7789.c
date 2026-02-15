@@ -1,5 +1,5 @@
 #include "st7789.h"
-#include "../../drivers/systick/systick.h"
+#include "../../hal/systick/systick.h"
 
 static void ST7789_Select(void) {
     // chip select enable
