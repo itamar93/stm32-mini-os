@@ -11,9 +11,9 @@ stm32-mini-os/
 ├── drivers/                # Device drivers (LED, ST7789 LCD)
 ├── lib/                    # Shared utility libraries
 ├── apps/                   # Example applications
-│   ├── blinky/            # LED blink demo
-│   ├── serial_echo/       # UART serial communication demo
-│   └── lcd_demo/          # LCD display demo
+│   ├── 1_blinky/          # LED blink demo
+│   ├── 2_serial/          # UART serial communication demo
+│   └── 3_lcd_screen/      # LCD display demo
 ├── docs/                   # Documentation
 ├── scripts/                # Helper scripts (flash, debug)
 ├── cfg/                    # Configuration files
@@ -30,9 +30,9 @@ Build any application using the `APP` variable:
 make
 
 # Build specific app
-make APP=blinky
-make APP=serial_echo
-make APP=lcd_demo
+make APP=1_blinky
+make APP=2_serial
+make APP=3_lcd_screen
 
 # Clean build artifacts
 make clean
@@ -43,22 +43,22 @@ make clean
 Flash the built firmware to your STM32F407 board:
 
 ```bash
-make flash APP=blinky
+make flash APP=1_blinky
 ```
 
 ## Applications
 
-### 1. Blinky (`apps/blinky`)
+### 1. Blinky (`apps/1_blinky`)
 A simple LED blinking application that toggles an LED every 500ms.
 - Demonstrates: GPIO control, SysTick timer
 
-### 2. Serial Echo (`apps/serial_echo`)
+### 2. Serial (`apps/2_serial`)
 UART communication demo that sends messages via serial port and controls LED.
 - Demonstrates: UART, GPIO, SysTick timer
 - Baudrate: 9600
 - Connect via: PuTTY, minicom, or any serial terminal
 
-### 3. LCD Demo (`apps/lcd_demo`)
+### 3. LCD Screen (`apps/3_lcd_screen`)
 Display demo using ST7789 LCD driver over SPI.
 - Demonstrates: SPI, LCD control, GPIO, SysTick timer
 - Fills screen with color and draws a blue square

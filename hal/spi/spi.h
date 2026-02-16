@@ -1,7 +1,7 @@
 #ifndef SPI_H
 #define SPI_H
 
-#include "lib/stdout_utils.h"
+#include "lib/stdout.h"
 #include <stdint.h>
 #include "../gpio/gpio.h"
 #define SPI1_RCC_EN       (1U << 12)

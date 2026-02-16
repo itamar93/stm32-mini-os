@@ -1,14 +1,9 @@
 #include "drivers/led/led.h"
 #include "hal/systick/systick.h"
-#include "hal/uart/uart.h"
-#include "lib/string_utils.h"
+#include "lib/stdout.h"
 
 void delay(void) {
     systick_delay_ms(2000);
-}
-
-void print_message(const char *msg) {
-    uart_send_data((uint8_t*)msg, my_strlen(msg));
 }
 
 void kmain(void) {

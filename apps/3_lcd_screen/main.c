@@ -1,7 +1,5 @@
 #include "drivers/led/led.h"
 #include "hal/systick/systick.h"
-#include "hal/uart/uart.h"
-#include "lib/string_utils.h"
 #include "drivers/st7789/st7789.h"
 
 void delay(void) {

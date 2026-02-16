@@ -15,33 +15,33 @@ The repository now uses a unified build system with a single Makefile.
 ### Build Commands
 
 ```bash
-# Build the default application (blinky)
+# Build the default application (1_blinky)
 make
 
 # Build a specific application
-make APP=blinky
-make APP=serial_echo
-make APP=lcd_demo
+make APP=1_blinky
+make APP=2_serial
+make APP=3_lcd_screen
 
 # Clean build artifacts
 make clean
 
 # Build and flash to board
-make flash APP=blinky
+make flash APP=1_blinky
 ```
 
 ### Application Descriptions
 
-#### blinky
+#### 1_blinky
 Simple LED blink demo. The LED toggles every 500ms.
 
 **Usage:**
 ```bash
-make APP=blinky
-make flash APP=blinky
+make APP=1_blinky
+make flash APP=1_blinky
 ```
 
-#### serial_echo
+#### 2_serial
 UART serial communication demo with LED control.
 - Sends "Hello, World!" on startup
 - Alternately turns LED on/off every 2 seconds
@@ -49,20 +49,20 @@ UART serial communication demo with LED control.
 
 **Usage:**
 ```bash
-make APP=serial_echo
-make flash APP=serial_echo
+make APP=2_serial
+make flash APP=2_serial
 # Connect via serial terminal (9600 baud)
 ```
 
-#### lcd_demo
+#### 3_lcd_screen
 LCD display demo using ST7789 driver.
 - Fills screen with a custom color
 - Draws a blue 20x20 pixel square in top-left corner
 
 **Usage:**
 ```bash
-make APP=lcd_demo
-make flash APP=lcd_demo
+make APP=3_lcd_screen
+make flash APP=3_lcd_screen
 ```
 
 ## Helper Scripts
@@ -96,9 +96,9 @@ A default OpenOCD configuration is provided in `cfg/openocd.cfg` for the STM32F4
 ├── drivers/           - Device drivers (LED, ST7789 LCD)
 ├── lib/               - Utility libraries (string, stdout)
 ├── apps/              - Application entry points
-│   ├── blinky/
-│   ├── serial_echo/
-│   └── lcd_demo/
+│   ├── 1_blinky/
+│   ├── 2_serial/
+│   └── 3_lcd_screen/
 ├── include/           - Global headers
 ├── docs/              - Documentation
 ├── scripts/           - Helper scripts
