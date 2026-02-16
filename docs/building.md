@@ -99,7 +99,6 @@ A default OpenOCD configuration is provided in `cfg/openocd.cfg` for the STM32F4
 │   ├── 1_blinky/
 │   ├── 2_serial/
 │   └── 3_lcd_screen/
-├── include/           - Global headers
 ├── docs/              - Documentation
 ├── scripts/           - Helper scripts
 ├── cfg/               - Configuration files
