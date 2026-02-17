@@ -1,29 +1,29 @@
-# 3_lcd_screen — Driving an LCD Display (and Debugging Hardware)
+# 3_lcd_screen - Driving an LCD Display (and Debugging Hardware)
 
 > *Part 3 of building a mini OS from scratch on the STM32F407.*
 
 ## Time to Display Something
 
-We can blink LEDs and send text over serial. Now let's push pixels to a screen — a 240x320 TFT LCD with an **ST7789** controller, connected over SPI.
+We can blink LEDs and send text over serial. Now let's push pixels to a screen. A 240x320 TFT LCD with an **ST7789** controller, connected over SPI.
 
-This project adds **SPI** and the **ST7789 driver**. But honestly, the most valuable part wasn't the code — it was the debugging. Things broke in ways that had nothing to do with software, and serial output (from the previous project) is what saved us.
+This project adds **SPI** and the **ST7789 driver**. But honestly, the most valuable part wasn't the code, it was the debugging. Things broke in ways that had nothing to do with software, and serial output (from the previous project) is what saved us.
 
-The end goal: this screen becomes the terminal and CLI for our mini OS — rendering text, displaying system output, and eventually providing an interactive command line.
+The end goal: this screen becomes the terminal and CLI for our mini OS. Rendering text, displaying system output, and eventually providing an interactive command line.
 
 ![placeholder: photo of ST7789 LCD module wired to STM32F407 Discovery board](placeholder_lcd_wiring.jpg)
 
 ## Understanding SPI
 
-SPI (Serial Peripheral Interface) is synchronous — unlike UART, it has a clock line. The master (our STM32) drives the clock and sends data on dedicated lines:
+SPI (Serial Peripheral Interface) is synchronous. Unlike UART, it has a clock line. The master (our STM32) drives the clock and sends data on dedicated lines:
 
-- **SCK** (PA5) — Clock
-- **MOSI** (PA7) — Master Out, Slave In
-- **MISO** (PA6) — Master In, Slave Out (not used by the display)
-- **CS** — Chip Select (active low — pull it low to talk to the device)
+- **SCK** (PA5): Clock
+- **MOSI** (PA7): Master Out, Slave In
+- **MISO** (PA6): Master In, Slave Out (not used by the display)
+- **CS**: Chip Select (active low, pull it low to talk to the device)
 
 The ST7789 also needs two extra GPIO lines:
-- **DC** — Data/Command select (low = command, high = data)
-- **RESET** — Hardware reset
+- **DC**: Data/Command select (low = command, high = data)
+- **RESET**: Hardware reset
 
 ![placeholder: diagram showing SPI bus connections between STM32 and ST7789](placeholder_spi_wiring_diagram.png)
 
@@ -42,12 +42,12 @@ static void configure_spi_parameters(void) {
     SPI1->CR1 &= ~(1U << 11); // 8-bit data frame
     // ... more configuration ...
 
-    // IMPORTANT: Enable SPI LAST — after all configuration is done
+    // IMPORTANT: Enable SPI LAST, after all configuration is done
     SPI1->CR1 |= (1U << 6);   // Enable SPI
 }
 ```
 
-Notice that comment at the end — it's going to be relevant shortly.
+Notice that comment at the end. It's going to be relevant shortly.
 
 ## Sending Data Over SPI
 
@@ -69,12 +69,12 @@ After the loop, we wait for BSY to clear and read DR/SR to clear the overrun fla
 
 The display needs a specific wake-up sequence:
 
-1. **Hardware reset** — toggle the RESET pin
-2. **Sleep Out** (`0x11`) — wake the controller
-3. **Wait 120ms** — the datasheet requires this
-4. **Set Color Format** (`0x3A`) — we use RGB565 (16-bit color)
-5. **Set Memory Access Control** (`0x36`) — orientation/scan direction
-6. **Inversion On** (`0x21`) — required for correct colors on most ST7789 modules
+1. **Hardware reset**: toggle the RESET pin
+2. **Sleep Out** (`0x11`): wake the controller
+3. **Wait 120ms**: the datasheet requires this
+4. **Set Color Format** (`0x3A`): we use RGB565 (16-bit color)
+5. **Set Memory Access Control** (`0x36`): orientation/scan direction
+6. **Inversion On** (`0x21`): required for correct colors on most ST7789 modules
 7. **Display On** (`0x29`)
 
 Each command: pull DC low, select chip, send byte, deselect. Data is the same but DC high.
@@ -149,9 +149,9 @@ Simple. But getting here wasn't.
 
 ### Bug #1: SPI Enabled Too Early
 
-First flash — blank screen. Backlight was on, just no pixels, no response at all.
+First flash: blank screen. Backlight was on, just no pixels, no response at all.
 
-I knew the init sequence was correct — I'd checked it against the datasheet. So the problem had to be lower: either SPI wasn't sending data, or the data was wrong.
+I knew the init sequence was correct. I'd checked it against the datasheet. So the problem had to be lower: either SPI wasn't sending data, or the data was wrong.
 
 This is where the **UART driver from the previous project** became invaluable. I added `print_message()` calls at each SPI init step:
 
@@ -170,13 +170,13 @@ Everything completed. So SPI *thought* it was initialized. But looking more care
 The buggy code:
 
 ```c
-SPI1->CR1 |= (1U << 6);   // Enable SPI — TOO EARLY!
+SPI1->CR1 |= (1U << 6);   // Enable SPI - TOO EARLY!
 SPI1->CR1 |= (1U << 2);   // Master mode
 SPI1->CR1 |= (1U << 9);   // Software slave management
 // ... more configuration after SPI was already running
 ```
 
-The reference manual is clear: **SPI must not be enabled until all configuration bits are set**. Enabling it early means the peripheral starts operating with an incomplete configuration — in my case, it wasn't even in master mode yet.
+The reference manual is clear: **SPI must not be enabled until all configuration bits are set**. Enabling it early means the peripheral starts operating with an incomplete configuration. In my case, it wasn't even in master mode yet.
 
 Fix: move enable to the last line.
 
@@ -189,18 +189,18 @@ SPI1->CR1 |= (1U << 6);
 
 ### Bug #2: Still Blank
 
-After fixing the enable order — still blank.
+After fixing the enable order: still blank.
 
 Serial confirmed SPI was init'ing correctly now. The ST7789 commands were going out. Data was flowing. But nothing on the screen.
 
 I stepped back from the software and looked at the hardware. Grabbed a **multimeter** and started probing the pins on the LCD module.
 
-- SCK — toggling
-- MOSI — data coming through
-- CS, DC — switching correctly
-- **VCC — nearly 0V**
+- SCK: toggling
+- MOSI: data coming through
+- CS, DC: switching correctly
+- **VCC: nearly 0V**
 
-The VCC pin was reading almost nothing. I traced it back: a **bad jumper wire**. It looked fine visually — seated in the breadboard, both ends plugged in. But internally, the wire had a break.
+The VCC pin was reading almost nothing. I traced it back: a **bad jumper wire**. It looked fine visually, seated in the breadboard, both ends plugged in. But internally, the wire had a break.
 
 Swapped it. Screen lit up immediately.
 
@@ -212,8 +212,8 @@ Swapped it. Screen lit up immediately.
 
 Two bugs, two completely different categories:
 
-1. **Software bug** — SPI enabled before config was complete. Found via serial debug. Fix: one line moved.
-2. **Hardware bug** — Bad jumper wire. No amount of code review finds this. You have to measure.
+1. **Software bug**: SPI enabled before config was complete. Found via serial debug. Fix: one line moved.
+2. **Hardware bug**: Bad jumper wire. No amount of code review finds this. You have to measure.
 
 This is embedded development. Your code can be perfect and it still doesn't work because of a 10-cent wire. Always check the obvious physical stuff: power, ground, connections. Measure voltages. Don't assume the hardware is fine just because it looks plugged in.
 
@@ -237,28 +237,28 @@ This is embedded development. Your code can be perfect and it still doesn't work
 
 ```
 apps/3_lcd_screen/
-└── main.c          — Fill screen + draw blue square
+└── main.c          - Fill screen + draw blue square
 
 hal/spi/
-├── spi.c           — SPI1 driver (init, send, receive)
+├── spi.c           - SPI1 driver (init, send, receive)
 └── spi.h
 
 drivers/st7789/
-├── st7789.c        — ST7789 LCD driver (init, pixel, fill)
+├── st7789.c        - ST7789 LCD driver (init, pixel, fill)
 └── st7789.h
 ```
 
-![placeholder: final photo of the complete setup — board, LCD, serial terminal all running](placeholder_final_setup.jpg)
+![placeholder: final photo of the complete setup - board, LCD, serial terminal all running](placeholder_final_setup.jpg)
 
-## What's Next — The OS Part
+## What's Next - The OS Part
 
 The hardware foundations are in place: GPIO, timers, serial, SPI, and a display. Everything so far has been building the lowest layers of our mini OS. Now it gets interesting:
 
-- **Interrupts** — everything is polling right now; a real OS needs interrupt-driven I/O
-- **SysTick interrupt** — the heartbeat of any preemptive scheduler
-- **Context switching** — saving/restoring registers to switch between tasks
-- **A scheduler** — round-robin, priority-based, or something custom
-- **Memory management** — even a simple bump allocator
-- **A shell** — with UART input and the display, we could build an interactive console
+- **Interrupts**: everything is polling right now; a real OS needs interrupt-driven I/O
+- **SysTick interrupt**: the heartbeat of any preemptive scheduler
+- **Context switching**: saving/restoring registers to switch between tasks
+- **A scheduler**: round-robin, priority-based, or something custom
+- **Memory management**: even a simple bump allocator
+- **A shell**: with UART input and the display, we could build an interactive console
 
 The hardware plumbing is done. Now we build the OS on top. Stay tuned.

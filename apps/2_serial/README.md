@@ -1,10 +1,10 @@
-# 2_serial — Talking to the Outside World
+# 2_serial - Talking to the Outside World
 
 > *Part 2 of building a mini OS from scratch on the STM32F407.*
 
 ## We Can Blink, But We're Blind
 
-We can blink an LED — it proves the toolchain works, the startup code is correct, and we can control hardware. But the LED only tells us one thing: on or off. If something goes wrong later — say, a driver isn't initializing properly — how do we know *what* broke?
+We can blink an LED. It proves the toolchain works, the startup code is correct, and we can control hardware. But the LED only tells us one thing: on or off. If something goes wrong later, say a driver isn't initializing properly, how do we know *what* broke?
 
 We need a way to send actual text from the microcontroller to a computer. We need **UART**.
 
@@ -12,7 +12,7 @@ We need a way to send actual text from the microcontroller to a computer. We nee
 
 ## What is UART?
 
-UART is one of the simplest serial protocols. Two wires: TX and RX. No clock — both sides just agree on a speed (baud rate) ahead of time. Data goes one bit at a time: a start bit, 8 data bits, and a stop bit.
+UART is one of the simplest serial protocols. Two wires: TX and RX. No clock signal, both sides just agree on a speed (baud rate) ahead of time. Data goes one bit at a time: a start bit, 8 data bits, and a stop bit.
 
 The STM32F407 has USART2 on PA2 (TX) and PA3 (RX), which route through the ST-LINK's built-in USB-to-serial converter. So we just plug in the same USB cable we're already using for programming, open a serial terminal, and we're talking.
 
@@ -20,7 +20,7 @@ The STM32F407 has USART2 on PA2 (TX) and PA3 (RX), which route through the ST-LI
 
 ## Reusing the GPIO HAL
 
-The GPIO driver we wrote for the LED? Works here too. Same `gpio_init()`, same `gpio_set_mode()` — just different pins and a different mode. This is how an OS takes shape: build a layer, verify it works, build the next layer on top. Our GPIO HAL is now serving two consumers — the LED driver and the UART driver.
+The GPIO driver we wrote for the LED? Works here too. Same `gpio_init()`, same `gpio_set_mode()`, just different pins and a different mode. This is how an OS takes shape: build a layer, verify it works, build the next layer on top. Our GPIO HAL is now serving two consumers: the LED driver and the UART driver.
 
 For UART, the pins use **Alternate Function** mode instead of plain output. Each pin on the STM32 can be routed to different peripherals via an alternate function selector. PA2 and PA3 use AF7 for USART2:
 
@@ -33,7 +33,7 @@ gpio_set_alt_function(GPIOA, UART2_RX_PIN, 7);
 
 ## Enabling the UART Clock
 
-Same pattern as GPIO — enable the clock before touching any peripheral registers. USART2 sits on the APB1 bus:
+Same pattern as GPIO: enable the clock before touching any peripheral registers. USART2 sits on the APB1 bus:
 
 ```c
 RCC->APB1ENR |= (1U << 17);  // USART2 clock enable
@@ -49,7 +49,7 @@ static uint32_t calculate_baudrate(void) {
 }
 ```
 
-The `+ (UART2_BAUDRATE / 2)` is a rounding trick — integer division truncates, and this gets us closer to the correct divider. At 16 MHz / 9600, we get 1667, and the USART hardware uses this to generate the correct bit timing.
+The `+ (UART2_BAUDRATE / 2)` is a rounding trick. Integer division truncates, and this gets us closer to the correct divider. At 16 MHz / 9600, we get 1667, and the USART hardware uses this to generate the correct bit timing.
 
 ## Sending Our First Byte
 
@@ -64,11 +64,11 @@ void uart_send_data(uint8_t *data, uint32_t length) {
 }
 ```
 
-That's it. Write a byte, wait for the hardware to be ready, write the next one. The USART peripheral handles framing — start bits, stop bits, timing — all in hardware.
+That's it. Write a byte, wait for the hardware to be ready, write the next one. The USART peripheral handles framing: start bits, stop bits, timing, all in hardware.
 
-## Building print_message — Our `printf`
+## Building print_message - Our `printf`
 
-Sending raw bytes is useful, but we really want to send strings. We can't use the standard library's `strlen` — there is no standard library on bare metal. So we wrote our own, and wrapped UART into `print_message()`:
+Sending raw bytes is useful, but we really want to send strings. We can't use the standard library's `strlen` because there is no standard library on bare metal. So we wrote our own, and wrapped UART into `print_message()`:
 
 ```c
 void print_message(const char *msg) {
@@ -76,7 +76,7 @@ void print_message(const char *msg) {
 }
 ```
 
-Now `print_message("Hello, World!\n\r")` shows up on a serial terminal. This might seem trivial, but every OS needs I/O — this is ours. We built the entire path ourselves: clock enable, pin config, baud rate, byte transmission. And this function becomes **critical** when we need to debug the LCD.
+Now `print_message("Hello, World!\n\r")` shows up on a serial terminal. This might seem trivial, but every OS needs I/O. This is ours. We built the entire path ourselves: clock enable, pin config, baud rate, byte transmission. And this function becomes **critical** when we need to debug the LCD.
 
 ![placeholder: screenshot of serial terminal showing "Hello, World!" output](placeholder_serial_hello.png)
 
@@ -120,4 +120,4 @@ The layers are stacking up. What started as a blink demo now has real I/O:
 
 ## What's Next
 
-We have hardware control and serial output. Time to get ambitious — we're going to drive an **LCD screen over SPI**. New protocol, new driver, and some of the best debugging lessons of this project.
+We have hardware control and serial output. Time to get ambitious. We're going to drive an **LCD screen over SPI**. New protocol, new driver, and some of the best debugging lessons of this project.

@@ -1,10 +1,10 @@
-# 1_blinky — Blinking an LED from Scratch
+# 1_blinky - Blinking an LED from Scratch
 
 > *Part 1 of building a mini operating system from scratch on the STM32F407.*
 
 ## The Goal: A Mini OS, From Scratch
 
-The end goal is to build a small operating system on an ARM Cortex-M4 — the STM32F407. No vendor HAL. No RTOS. No Arduino. Just the reference manual, a compiler, and bare metal.
+The end goal is to build a small operating system on an ARM Cortex-M4, the STM32F407. No vendor HAL. No RTOS. No Arduino. Just the reference manual, a compiler, and bare metal.
 
 But we have to start somewhere. And in embedded, "start somewhere" means blinking an LED.
 
@@ -12,7 +12,7 @@ But we have to start somewhere. And in embedded, "start somewhere" means blinkin
 
 In Arduino, blinking an LED is five lines. `digitalWrite(LED, HIGH)`, upload, done.
 
-But there's a *lot* happening behind the scenes that Arduino hides from you. What if we stripped all of that away — no libraries, no `setup()` and `loop()` — just a bare chip and a compiler? How do you actually blink an LED?
+But there's a *lot* happening behind the scenes that Arduino hides from you. What if we stripped all of that away? No libraries, no `setup()` and `loop()`. Just a bare chip and a compiler. How do you actually blink an LED?
 
 Before we can schedule tasks or handle interrupts, we need to understand how this chip boots and how to talk to its hardware.
 
@@ -20,15 +20,15 @@ Before we can schedule tasks or handle interrupts, we need to understand how thi
 
 ## What Happens When You Power On?
 
-The processor doesn't just start running your code. It doesn't know where your code *is*. What it does is look at address `0x08000000` — the beginning of Flash — and expect a **vector table**: a list of addresses.
+The processor doesn't just start running your code. It doesn't know where your code *is*. What it does is look at address `0x08000000`, the beginning of Flash, and expect a **vector table**: a list of addresses.
 
-First entry: initial stack pointer. Second entry: the **Reset Handler** — the first function that runs after power-on.
+First entry: initial stack pointer. Second entry: the **Reset Handler**, the first function that runs after power-on.
 
 ```c
 __attribute__((section(".isr_vector")))
 uint32_t vector_table[] = {
     (uint32_t)&_estack,          // Initial Stack Pointer
-    (uint32_t)&Reset_Handler,    // Reset Handler — entry point
+    (uint32_t)&Reset_Handler,    // Reset Handler - entry point
     (uint32_t)&NMI_Handler,
     (uint32_t)&HardFault_Handler
 };
@@ -40,12 +40,12 @@ uint32_t vector_table[] = {
 
 ## The Reset Handler
 
-On a desktop, the C runtime sets up your environment before `main()` runs. On bare metal, there is no C runtime — *we* are the C runtime.
+On a desktop, the C runtime sets up your environment before `main()` runs. On bare metal, there is no C runtime. *We* are the C runtime.
 
 Before any C code with globals can run, we need to set up memory:
 
-1. **Copy `.data` from Flash to SRAM** — initialized globals live in Flash but need to be in SRAM
-2. **Zero `.bss`** — the C standard says uninitialized globals start at zero
+1. **Copy `.data` from Flash to SRAM**: initialized globals live in Flash but need to be in SRAM
+2. **Zero `.bss`**: the C standard says uninitialized globals start at zero
 
 ```c
 void Reset_Handler(void) {
@@ -65,9 +65,9 @@ void Reset_Handler(void) {
 }
 ```
 
-The symbols `_etext`, `_sdata`, `_ebss` come from the **linker script** — a file that tells the linker exactly where to place code and data in memory.
+The symbols `_etext`, `_sdata`, `_ebss` come from the **linker script**, a file that tells the linker exactly where to place code and data in memory.
 
-![placeholder: diagram showing Flash and SRAM memory layout with .text, .data, .bss sections](placeholder_memory_layout.png)
+<img src="../../docs/img/memory_layout.png" alt="memory layout" width="600">
 
 ## The Linker Script
 
@@ -80,11 +80,11 @@ MEMORY {
 }
 ```
 
-Code goes in Flash, variables go in SRAM. The linker generates the `_etext`, `_sdata`, etc. symbols so the startup code knows where to copy things. The vector table, startup code, and linker script work together — they're the boot sequence of our mini OS.
+Code goes in Flash, variables go in SRAM. The linker generates the `_etext`, `_sdata`, etc. symbols so the startup code knows where to copy things. The vector table, startup code, and linker script work together. They're the boot sequence of our mini OS.
 
 ## Enabling the Clock
 
-Here's something that catches everyone the first time: on STM32, **peripheral clocks are off by default**. It's a power-saving feature called clock gating. If you try to use a GPIO port without enabling its clock — nothing happens. No error, no crash — just silence.
+Here's something that catches everyone the first time: on STM32, **peripheral clocks are off by default**. It's a power-saving feature called clock gating. If you try to use a GPIO port without enabling its clock, nothing happens. No error, no crash, just silence.
 
 ```c
 void gpio_init(uint32_t port) {
@@ -98,7 +98,7 @@ One bit in one register. That's the difference between a dead port and a working
 
 ## Configuring the Pin
 
-Pin 12 on Port D needs to be an output. Each pin has a 2-bit mode field in the MODER register — `00` for input, `01` for output, `10` for alternate function, `11` for analog:
+Pin 12 on Port D needs to be an output. Each pin has a 2-bit mode field in the MODER register: `00` for input, `01` for output, `10` for alternate function, `11` for analog.
 
 ```c
 void gpio_set_mode(GPIO_TypeDef *gpio, uint32_t pin, uint32_t mode) {
@@ -107,13 +107,13 @@ void gpio_set_mode(GPIO_TypeDef *gpio, uint32_t pin, uint32_t mode) {
 }
 ```
 
-Clear first, then set. This read-modify-write pattern shows up everywhere in embedded — you never want to accidentally change bits you didn't intend to touch.
+Clear first, then set. This read-modify-write pattern shows up everywhere in embedded. You never want to accidentally change bits you didn't intend to touch.
 
-## SysTick — First Step Toward an OS Timer
+## SysTick - First Step Toward an OS Timer
 
-How do you "wait" on bare metal? There's no `sleep()` function. No OS to ask — *we are* the OS.
+How do you "wait" on bare metal? There's no `sleep()` function. No OS to ask. *We are* the OS.
 
-The Cortex-M4 has a built-in **SysTick** — a 24-bit countdown timer. We load it with a value, it counts down to zero, sets a flag, and we poll that flag. At 16 MHz, loading 16000 gives us exactly 1 millisecond per countdown.
+The Cortex-M4 has a built-in **SysTick**, a 24-bit countdown timer. We load it with a value, it counts down to zero, sets a flag, and we poll that flag. At 16 MHz, loading 16000 gives us exactly 1 millisecond per countdown.
 
 For now we poll it. Later, this same timer will drive our scheduler.
 
@@ -180,4 +180,4 @@ That's the difference between "it just works" and understanding what's actually 
 
 ## What's Next
 
-We can control hardware and we have a sense of time. But we're flying blind — if something goes wrong, the LED can only tell us "yes" or "no." Next: **UART serial output** — our `printf` on bare metal.
+We can control hardware and we have a sense of time. But we're flying blind. If something goes wrong, the LED can only tell us "yes" or "no." Next: **UART serial output**, our `printf` on bare metal.
