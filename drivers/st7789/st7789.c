@@ -70,7 +70,7 @@ void ST7789_Init(void) {
     gpio_set_mode(ST7789_GPIO_STRUCT, ST7789_CS_PIN, GPIO_MODE_OUTPUT); // configure GPIO for CS pin
     gpio_set_mode(ST7789_GPIO_STRUCT, ST7789_DC_PIN, GPIO_MODE_OUTPUT); // configure GPIO for DC pin
     gpio_set_mode(ST7789_GPIO_STRUCT, ST7789_BL_PIN, GPIO_MODE_OUTPUT);
-    gpio_write_pin(ST7789_GPIO_STRUCT, ST7789_BL_PIN, GPIO_PIN_LOW);
+    gpio_write_pin(ST7789_GPIO_STRUCT, ST7789_BL_PIN, GPIO_PIN_HIGH);
     // cs deselect
     ST7789_Deselect();
     // reset the display
@@ -169,30 +169,34 @@ uint32_t ST7789_DrawWindow(uint32_t x, uint32_t y, uint32_t width, uint32_t heig
     return ST7789_SUCCESS;
 }
 
-uint32_t ST7789_DrawChar(uint32_t x, uint32_t y, Font_TypeDef* font, char ch, uint16_t color, uint16_t bg_color) {
+uint32_t ST7789_DrawChar(uint32_t x, uint32_t y, const Font_TypeDef* font, char ch, uint16_t color, uint16_t bg_color) {
     if (x + font->width > ST7789_WIDTH || y + font->height > ST7789_HEIGHT) {
         return ST7789_ERROR_OUT_OF_BOUNDS;
     }
 
-    const uint8_t *glyph = font->font + (uint8_t)ch * font->height;
+    const uint8_t *glyph = font->font + (uint8_t)ch * font->height * font->bytes_per_row;
 
     uint8_t hi = (uint8_t)((color >> 8) & 0xFF);
     uint8_t lo = (uint8_t)(color & 0xFF);
+    uint8_t bg_hi = (uint8_t)((bg_color >> 8) & 0xFF);
+    uint8_t bg_lo = (uint8_t)(bg_color & 0xFF);
 
     ST7789_ColumnAddressSet(x, x + font->width - 1);
     ST7789_RowAddressSet(y, y + font->height - 1);
     ST7789_SendCommand(ST7789_RAMWR);
 
-    uint8_t line_buf[FONT_8X8_WIDTH * 2];
+    uint8_t line_buf[FONT_16X16_WIDTH * 2];
     for (uint32_t row = 0; row < font->height; row++) {
-        uint8_t bits = glyph[row];
+        const uint8_t *row_data = glyph + row * font->bytes_per_row;
         for (uint32_t col = 0; col < font->width; col++) {
-            if (bits & (0x80 >> col)) {
+            uint32_t byte_idx = col / 8;
+            uint32_t bit_idx = 7 - (col % 8);
+            if (row_data[byte_idx] & (1U << bit_idx)) {
                 line_buf[col * 2]     = hi;
                 line_buf[col * 2 + 1] = lo;
             } else {
-                line_buf[col * 2]     = (uint8_t)((bg_color >> 8) & 0xFF);
-                line_buf[col * 2 + 1] = (uint8_t)(bg_color & 0xFF);
+                line_buf[col * 2]     = bg_hi;
+                line_buf[col * 2 + 1] = bg_lo;
             }
         }
         ST7789_SendData(line_buf, font->width * 2);

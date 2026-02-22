@@ -1,5 +1,5 @@
 # Default application to build
-APP ?= 1_blinky
+APP ?= 4_gfx
 
 TARGET_NAME = kernel
 LINKER_SCRIPT = linker.ld
