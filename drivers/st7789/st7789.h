@@ -4,8 +4,8 @@
 #include "../../hal/spi/spi.h"
 #include "../../lib/inc/fonts.h"
 
-#define ST7789_WIDTH 240
-#define ST7789_HEIGHT 320
+#define ST7789_WIDTH 320
+#define ST7789_HEIGHT 240
 #define ST7789_GPIO_STRUCT GPIOC
 #define ST7789_GPIO_PORT GPIO_PORT_C
 #define ST7789_BL_PIN     4

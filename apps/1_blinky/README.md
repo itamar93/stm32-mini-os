@@ -1,3 +1,7 @@
+[← Previous: Build Instructions](../../docs/building.md) | [📖 Table of Contents](../../README.md) | [Next →: 2_serial](../2_serial/README.md)
+
+---
+
 # 1_blinky - Blinking an LED from Scratch
 
 > *Part 1 of building a mini operating system from scratch on the STM32F407.*
@@ -181,3 +185,7 @@ That's the difference between "it just works" and understanding what's actually 
 ## What's Next
 
 We can control hardware and we have a sense of time. But we're flying blind. If something goes wrong, the LED can only tell us "yes" or "no." Next: **UART serial output**, our `printf` on bare metal.
+
+---
+
+[← Previous: Build Instructions](../../docs/building.md) | [📖 Table of Contents](../../README.md) | [Next →: 2_serial](../2_serial/README.md)

@@ -1,3 +1,7 @@
+[← Previous](../README.md) | [📖 Table of Contents](../README.md) | [Next →](building.md)
+
+---
+
 # Setup Guide
 
 ## Required Tools
@@ -36,3 +40,7 @@ Install OpenOCD (Open On-Chip Debugger) for flashing and debugging:
 - By default, the clock to all unused peripherals is disabled to save power (clock gating technique)
 - **RCC (Reset and Clock Control)**: The peripheral that controls buses' clock
 - Registers naming convention: peripheral + _ + register name. e.g: RCC_AHB1ENR
+
+---
+
+[← Previous](../README.md) | [📖 Table of Contents](../README.md) | [Next →](building.md)

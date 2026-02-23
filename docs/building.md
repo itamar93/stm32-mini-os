@@ -1,3 +1,7 @@
+[← Previous: Setup Guide](setup.md) | [📖 Table of Contents](../README.md) | [Next →: 1_blinky](../apps/1_blinky/README.md)
+
+---
+
 # Build Instructions
 
 ## Prerequisites
@@ -22,6 +26,7 @@ make
 make APP=1_blinky
 make APP=2_serial
 make APP=3_lcd_screen
+make APP=4_gfx
 
 # Clean build artifacts
 make clean
@@ -65,6 +70,17 @@ make APP=3_lcd_screen
 make flash APP=3_lcd_screen
 ```
 
+#### 4_gfx
+Text rendering demo using bitmap fonts on the ST7789 LCD.
+- Renders "HELLO FROM STM32-MINI-OS!" in white text on black background
+- Uses 12×12 bitmap font with automatic line wrapping
+
+**Usage:**
+```bash
+make APP=4_gfx
+make flash APP=4_gfx
+```
+
 ## Helper Scripts
 
 The repository includes helper scripts in `scripts/`:
@@ -98,7 +114,8 @@ A default OpenOCD configuration is provided in `cfg/openocd.cfg` for the STM32F4
 ├── apps/              - Application entry points
 │   ├── 1_blinky/
 │   ├── 2_serial/
-│   └── 3_lcd_screen/
+│   ├── 3_lcd_screen/
+│   └── 4_gfx/
 ├── docs/              - Documentation
 ├── scripts/           - Helper scripts
 ├── cfg/               - Configuration files
@@ -122,3 +139,7 @@ If flashing fails:
 2. Verify OpenOCD is installed
 3. Check that the board is powered
 4. Try: `openocd -f cfg/openocd.cfg`
+
+---
+
+[← Previous: Setup Guide](setup.md) | [📖 Table of Contents](../README.md) | [Next →: 1_blinky](../apps/1_blinky/README.md)

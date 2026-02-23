@@ -1,3 +1,7 @@
+[← Previous: 1_blinky](../1_blinky/README.md) | [📖 Table of Contents](../../README.md) | [Next →: 3_lcd_screen](../3_lcd_screen/README.md)
+
+---
+
 # 2_serial - Talking to the Outside World
 
 > *Part 2 of building a mini OS from scratch on the STM32F407.*
@@ -121,3 +125,7 @@ The layers are stacking up. What started as a blink demo now has real I/O:
 ## What's Next
 
 We have hardware control and serial output. Time to get ambitious. We're going to drive an **LCD screen over SPI**. New protocol, new driver, and some of the best debugging lessons of this project.
+
+---
+
+[← Previous: 1_blinky](../1_blinky/README.md) | [📖 Table of Contents](../../README.md) | [Next →: 3_lcd_screen](../3_lcd_screen/README.md)

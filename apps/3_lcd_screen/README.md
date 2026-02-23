@@ -1,3 +1,7 @@
+[← Previous: 2_serial](../2_serial/README.md) | [📖 Table of Contents](../../README.md) | [Next →: 4_gfx](../4_gfx/README.md)
+
+---
+
 # 3_lcd_screen - Driving an LCD Display (and Debugging Hardware)
 
 > *Part 3 of building a mini OS from scratch on the STM32F407.*
@@ -250,15 +254,10 @@ drivers/st7789/
 
 ![placeholder: final photo of the complete setup - board, LCD, serial terminal all running](placeholder_final_setup.jpg)
 
-## What's Next - The OS Part
+## What's Next
 
-The hardware foundations are in place: GPIO, timers, serial, SPI, and a display. Everything so far has been building the lowest layers of our mini OS. Now it gets interesting:
+We have a display that can draw pixels and fill rectangles. But an OS needs to show *text*: status messages, debug output, a command line. Next up: **bitmap font rendering**. We'll define each character as a grid of bits, add a `DrawChar` function to the driver, and display our first string on the screen.
 
-- **Interrupts**: everything is polling right now; a real OS needs interrupt-driven I/O
-- **SysTick interrupt**: the heartbeat of any preemptive scheduler
-- **Context switching**: saving/restoring registers to switch between tasks
-- **A scheduler**: round-robin, priority-based, or something custom
-- **Memory management**: even a simple bump allocator
-- **A shell**: with UART input and the display, we could build an interactive console
+---
 
-The hardware plumbing is done. Now we build the OS on top. Stay tuned.
+[← Previous: 2_serial](../2_serial/README.md) | [📖 Table of Contents](../../README.md) | [Next →: 4_gfx](../4_gfx/README.md)

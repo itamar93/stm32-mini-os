@@ -2,6 +2,18 @@
 
 A minimal embedded operating system for STM32F407 microcontroller, demonstrating various hardware interfaces and drivers.
 
+## Table of Contents
+
+### Documentation
+- [Setup Guide](docs/setup.md) — Tool installation and hardware requirements
+- [Build Instructions](docs/building.md) — Building, flashing, and troubleshooting
+
+### Applications
+- [1_blinky](apps/1_blinky/README.md) — Blinking an LED from scratch
+- [2_serial](apps/2_serial/README.md) — UART serial communication
+- [3_lcd_screen](apps/3_lcd_screen/README.md) — Driving an LCD display over SPI
+- [4_gfx](apps/4_gfx/README.md) — Drawing text on the screen
+
 ## Project Structure
 
 ```
@@ -13,7 +25,8 @@ stm32-mini-os/
 ├── apps/                   # Example applications
 │   ├── 1_blinky/          # LED blink demo
 │   ├── 2_serial/          # UART serial communication demo
-│   └── 3_lcd_screen/      # LCD display demo
+│   ├── 3_lcd_screen/      # LCD display demo
+│   └── 4_gfx/             # Text rendering demo
 ├── docs/                   # Documentation
 ├── scripts/                # Helper scripts (flash, debug)
 ├── cfg/                    # Configuration files
@@ -33,6 +46,7 @@ make
 make APP=1_blinky
 make APP=2_serial
 make APP=3_lcd_screen
+make APP=4_gfx
 
 # Clean build artifacts
 make clean
@@ -63,6 +77,11 @@ Display demo using ST7789 LCD driver over SPI.
 - Demonstrates: SPI, LCD control, GPIO, SysTick timer
 - Fills screen with color and draws a blue square
 
+### 4. GFX (`apps/4_gfx`)
+Text rendering demo using bitmap fonts on the ST7789 LCD.
+- Demonstrates: Bitmap font rendering, SPI, LCD control
+- Draws white text on a black screen with line wrapping
+
 ## Hardware Requirements
 
 - STM32F407 Discovery Board
@@ -86,7 +105,12 @@ See [docs/setup.md](docs/setup.md) for detailed setup instructions including:
 
 ### Drivers
 - **LED**: LED control wrapper
-- **ST7789**: LCD display driver
+- **ST7789**: LCD display driver (pixel, fill, window, text)
+
+### Libraries
+- **string**: Custom string utilities (`my_strlen`, etc.)
+- **stdout**: Serial output wrapper (`print_message`)
+- **fonts**: 12×12 bitmap font data
 
 ### Startup Flow
 1. Reset_Handler (in `platform/stm32f407/boot/startup.c`)
