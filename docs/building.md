@@ -9,6 +9,7 @@
 Install the required tools:
 - GNU Arm Embedded Toolchain
 - OpenOCD (for flashing)
+- xPack Windows Build Tools (GNU Make)
 
 See [setup.md](setup.md) for detailed installation instructions.
 
@@ -122,23 +123,6 @@ A default OpenOCD configuration is provided in `cfg/openocd.cfg` for the STM32F4
 ├── Makefile           - Build system
 └── linker.ld          - Linker script
 ```
-
-## Troubleshooting
-
-### Compilation Errors
-
-If you get compilation errors, ensure:
-1. ARM toolchain is properly installed and in PATH
-2. You're using the correct APP name
-3. All source files are present
-
-### Flash Errors
-
-If flashing fails:
-1. Check that your ST-LINK is connected
-2. Verify OpenOCD is installed
-3. Check that the board is powered
-4. Try: `openocd -f cfg/openocd.cfg`
 
 ---
 

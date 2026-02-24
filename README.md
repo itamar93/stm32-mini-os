@@ -1,12 +1,14 @@
 # stm32-mini-os
 
-A minimal embedded operating system for STM32F407 microcontroller, demonstrating various hardware interfaces and drivers.
+A minimal embedded operating system for the STM32F407 microcontroller, built entirely from scratch. no vendor HAL, no RTOS, no Arduino. Just the reference manual, a compiler, and bare metal.
+
+The project is developed on **Windows** using the GNU Arm Embedded Toolchain.
 
 ## Table of Contents
 
 ### Documentation
 - [Setup Guide](docs/setup.md) — Tool installation and hardware requirements
-- [Build Instructions](docs/building.md) — Building, flashing, and troubleshooting
+- [Build Instructions](docs/building.md) — Building and flashing
 
 ### Applications
 - [1_blinky](apps/1_blinky/README.md) — Blinking an LED from scratch
@@ -70,7 +72,7 @@ A simple LED blinking application that toggles an LED every 500ms.
 UART communication demo that sends messages via serial port and controls LED.
 - Demonstrates: UART, GPIO, SysTick timer
 - Baudrate: 9600
-- Connect via: PuTTY, minicom, or any serial terminal
+- Connect via: PuTTY or any serial terminal
 
 ### 3. LCD Screen (`apps/3_lcd_screen`)
 Display demo using ST7789 LCD driver over SPI.
@@ -85,15 +87,24 @@ Text rendering demo using bitmap fonts on the ST7789 LCD.
 ## Hardware Requirements
 
 - STM32F407 Discovery Board
-- ST-LINK programmer (integrated on Discovery board)
-- Optional: ST7789 LCD module (for lcd_demo)
+- USB-to-TTL serial adapter
+- TFT LCD screen with SPI interface and integrated ST7789 controller
+- PS/2 keyboard
+- PS/2 breakout module
+- Jumper wires
+- Multimeter
+- Logic analyzer (optional)
+
+## Software Requirements
+
+- [GNU Arm Embedded Toolchain](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm)
+- [OpenOCD](http://openocd.org/) — for flashing and debugging
+- [xPack Windows Build Tools](https://xpack.github.io/windows-build-tools/) — GNU Make and supporting utilities for Windows
+- [PuTTY](https://www.putty.org/) — serial terminal
 
 ## Setup
 
-See [docs/setup.md](docs/setup.md) for detailed setup instructions including:
-- GNU Arm Embedded Toolchain installation
-- OpenOCD installation
-- Hardware connections
+See [docs/setup.md](docs/setup.md) for detailed setup instructions.
 
 ## Architecture
 
