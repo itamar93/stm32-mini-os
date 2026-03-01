@@ -95,6 +95,35 @@ The `SECTIONS` block then lays out what goes where:
 
 The linker also generates symbols that mark the boundaries of each section: `_etext` (end of code in Flash), `_sdata` / `_edata` (start/end of `.data` in SRAM), `_sbss` / `_ebss` (start/end of `.bss`). These are the exact symbols the Reset Handler uses to know what to copy and what to zero.
 
+## Talking to Hardware
+
+Before we can toggle any pins, we need to understand how software talks to hardware on this chip.
+
+On the STM32, every peripheral: GPIO, timers, UART, SPI - is controlled through **memory-mapped registers**. Each register is a 32-bit value at a fixed address. Write to that address to configure the peripheral. Read it to check its state.
+
+How do we know which address does what? The **reference manual**. It's 1700+ pages of register maps, bit definitions, and configuration details. Want to set a GPIO pin as output? The reference manual tells you exactly which register, which bits, and which values.
+
+We define C structs that mirror the register layout straight from the manual:
+
+```c
+typedef struct {
+    volatile uint32_t MODER;   // Offset 0x00
+    volatile uint32_t OTYPER;  // Offset 0x04
+    ...
+    volatile uint32_t IDR;     // Offset 0x10
+    volatile uint32_t ODR;     // Offset 0x14
+    ...
+} GPIO_TypeDef;
+
+#define GPIOD ((GPIO_TypeDef *)0x40020C00UL)
+```
+
+Now `GPIOD->ODR` reads or writes the Output Data Register at its exact hardware address. The struct layout guarantees correct offsets.
+
+Every field is marked `volatile`. This tells the compiler: **do not optimize away this field**. Without it, the compiler might say "this field was defined, but never used - So it is probably redundant". What it doesn't know is that hardware registers can be changed on their own - a status flag set by the peripheral, a counter ticking down. So very write matters. `volatile` ensures every access hits the real address.
+
+All register definitions live in `regs.h` — one struct per peripheral type, each mapping the register layout from the reference manual. This single file is how our entire codebase talks to hardware.
+
 ## Toggling an LED
 
 Now we're in `kmain()`. We want to blink an LED. The STM32F407 Discovery board has four built-in LEDs. Looking at the board's user manual, the green one is connected to pin 12 on GPIO port D (PD12).
@@ -105,7 +134,13 @@ GPIO (General Purpose Input/Output) is the peripheral that controls the pins. To
 
 On STM32, peripheral clocks are off by default. It's a power-saving feature called **clock gating**. If you try to use a GPIO port without enabling its clock first, nothing happens. No error, no crash, just silence.
 
-The clock is enabled through the RCC (Reset and Clock Control) peripheral. GPIO port D sits on the AHB1 bus, so we set the corresponding bit in `RCC_AHB1ENR`:
+The STM32F407 has a hierarchical clock system. The system clock (16 MHz internal oscillator by default) feeds into bus prescalers that distribute the clock to different peripheral groups:
+
+- **AHB1**: GPIO ports, DMA
+- **APB1** (low-speed): USART2, timers
+- **APB2** (high-speed): SPI1
+
+Each peripheral has a dedicated enable bit in the RCC register for its bus. To find the right register and bit, we go to the reference manual: RCC chapter → `RCC_AHB1ENR` → GPIO port D is bit 3.
 
 ```c
 void gpio_init(uint32_t port) {
@@ -113,7 +148,9 @@ void gpio_init(uint32_t port) {
 }
 ```
 
-One bit in one register. That's the difference between a dead port and a working one.
+GPIO ports A through E map to bits 0 through 4 in `AHB1ENR`. Port D is bit 3, so `(1U << 3)` enables it. One bit in one register — that's the difference between a dead port and a working one.
+
+This pattern repeats for every peripheral we'll use: check the reference manual, find the bus, find the enable bit, set it.
 
 ## Configuring the Pin
 

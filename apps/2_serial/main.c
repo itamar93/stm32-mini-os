@@ -1,6 +1,6 @@
 #include "drivers/led/led.h"
 #include "hal/systick/systick.h"
-#include "lib/stdout.h"
+#include "lib/inc/stdout.h"
 
 void delay(void) {
     systick_delay_ms(2000);

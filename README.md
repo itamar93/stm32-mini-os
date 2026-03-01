@@ -1,6 +1,6 @@
 # stm32-mini-os
 
-A minimal embedded operating system for the STM32F407 microcontroller, built entirely from scratch. no vendor HAL, no RTOS, no Arduino. Just the reference manual, a compiler, and bare metal.
+A minimal embedded operating system for the STM32F407 microcontroller, built entirely from scratch. No vendor HAL, no RTOS, no Arduino. Just the reference manual, a compiler, and bare metal.
 
 The project is developed on **Windows** using the GNU Arm Embedded Toolchain.
 

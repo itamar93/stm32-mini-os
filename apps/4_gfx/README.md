@@ -12,8 +12,6 @@ We can fill the screen with color and draw rectangles. But an OS needs to displa
 
 This project adds a **bitmap font library** and a **character drawing function** to the ST7789 driver. Together they let us render text on the LCD, one character at a time, with automatic line wrapping.
 
-![placeholder: photo of LCD displaying "HELLO FROM STM32-MINI-OS!" text](placeholder_gfx_text.jpg)
-
 ## Bitmap Fonts
 
 There's no font engine on bare metal. No TrueType, no FreeType. We define each character as a grid of bits: 1 = foreground pixel, 0 = background pixel.
@@ -160,8 +158,6 @@ void kmain(void) {
 ```
 
 Fill the screen black, then walk through each character in the message, drawing it at the current position and advancing. If it overflows the line, wrap to the next one.
-
-![placeholder: close-up photo of rendered text on the LCD](placeholder_gfx_closeup.jpg)
 
 ## What Changed in the Driver
 

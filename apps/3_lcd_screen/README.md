@@ -10,11 +10,9 @@
 
 We can blink LEDs and send text over serial. Now let's push pixels to a screen. A 240x320 TFT LCD with an **ST7789** controller, connected over SPI.
 
-This project adds **SPI** and the **ST7789 driver**. But honestly, the most valuable part wasn't the code, it was the debugging. Things broke in ways that had nothing to do with software, and serial output (from the previous project) is what saved us.
+This project adds **SPI** and the **ST7789 driver**. But honestly, the most valuable part wasn't the code — it was the debugging. Things broke in ways that had nothing to do with software, and serial output (from the previous project) is what saved us.
 
-The end goal: this screen becomes the terminal and CLI for our mini OS. Rendering text, displaying system output, and eventually providing an interactive command line.
-
-![placeholder: photo of ST7789 LCD module wired to STM32F407 Discovery board](placeholder_lcd_wiring.jpg)
+The end goal: this screen becomes the terminal for our mini OS. Rendering text, displaying system output, and eventually providing an interactive command line.
 
 ## Understanding SPI
 
@@ -23,17 +21,15 @@ SPI (Serial Peripheral Interface) is synchronous. Unlike UART, it has a clock li
 - **SCK** (PA5): Clock
 - **MOSI** (PA7): Master Out, Slave In
 - **MISO** (PA6): Master In, Slave Out (not used by the display)
-- **CS**: Chip Select (active low, pull it low to talk to the device)
+- **CS**: Chip Select (active low — pull it low to talk to the device)
 
 The ST7789 also needs two extra GPIO lines:
 - **DC**: Data/Command select (low = command, high = data)
 - **RESET**: Hardware reset
 
-![placeholder: diagram showing SPI bus connections between STM32 and ST7789](placeholder_spi_wiring_diagram.png)
-
 ## The SPI Driver
 
-Same pattern as every peripheral: enable clocks, configure pins, set parameters. For SPI, the pins go to Alternate Function mode (AF5 for SPI1), and then we configure the control register bit by bit:
+Same pattern as every peripheral: enable clocks, configure pins, set parameters. For SPI, the pins use Alternate Function mode (AF5 for SPI1), and then we configure the control register bit by bit:
 
 ```c
 static void configure_spi_parameters(void) {
@@ -91,19 +87,18 @@ uint8_t rgb_data = 0x05;  // RGB565
 ST7789_SendData(&rgb_data, 1);
 ```
 
-![placeholder: logic analyzer capture showing SPI command sequence during init](placeholder_spi_logic_analyzer.png)
-
 ## Drawing Pixels
 
 To draw a pixel at (x, y), we set the column and row address window, send the RAMWR command, then send 2 bytes of color data (RGB565):
 
 ```c
-void ST7789_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
+uint32_t ST7789_DrawPixel(uint32_t x, uint32_t y, uint16_t color) {
     ST7789_ColumnAddressSet(x, x);
     ST7789_RowAddressSet(y, y);
     ST7789_SendCommand(ST7789_RAMWR);
     uint8_t data[2] = { color >> 8, color & 0xFF };
     ST7789_SendData(data, 2);
+    return ST7789_SUCCESS;
 }
 ```
 
@@ -145,8 +140,6 @@ void kmain(void) {
 
 Simple. But getting here wasn't.
 
-![placeholder: photo of LCD displaying colored screen with blue square](placeholder_lcd_working.jpg)
-
 ---
 
 ## When Things Didn't Work
@@ -158,7 +151,6 @@ First flash: blank screen. Backlight was on, just no pixels, no response at all.
 I knew the init sequence was correct. I'd checked it against the datasheet. So the problem had to be lower: either SPI wasn't sending data, or the data was wrong.
 
 This is where the **UART driver from the previous project** became invaluable. I added `print_message()` calls at each SPI init step:
-
 ```c
 print_message("Enabling SPI clocks...\n\r");
 enable_clocks();
@@ -189,8 +181,6 @@ Fix: move enable to the last line.
 SPI1->CR1 |= (1U << 6);
 ```
 
-![placeholder: screenshot of serial terminal showing SPI debug messages](placeholder_spi_debug_serial.png)
-
 ### Bug #2: Still Blank
 
 After fixing the enable order: still blank.
@@ -198,7 +188,6 @@ After fixing the enable order: still blank.
 Serial confirmed SPI was init'ing correctly now. The ST7789 commands were going out. Data was flowing. But nothing on the screen.
 
 I stepped back from the software and looked at the hardware. Grabbed a **multimeter** and started probing the pins on the LCD module.
-
 - SCK: toggling
 - MOSI: data coming through
 - CS, DC: switching correctly
@@ -208,10 +197,6 @@ The VCC pin was reading almost nothing. I traced it back: a **bad jumper wire**.
 
 Swapped it. Screen lit up immediately.
 
-![placeholder: photo of multimeter probing VCC pin on LCD module](placeholder_multimeter_vcc.jpg)
-
-![placeholder: photo/gif of the screen finally displaying colors after the fix](placeholder_lcd_first_light.gif)
-
 ### Takeaway
 
 Two bugs, two completely different categories:
@@ -220,8 +205,6 @@ Two bugs, two completely different categories:
 2. **Hardware bug**: Bad jumper wire. No amount of code review finds this. You have to measure.
 
 This is embedded development. Your code can be perfect and it still doesn't work because of a 10-cent wire. Always check the obvious physical stuff: power, ground, connections. Measure voltages. Don't assume the hardware is fine just because it looks plugged in.
-
----
 
 ## What We Built (Cumulative)
 
@@ -251,8 +234,6 @@ drivers/st7789/
 ├── st7789.c        - ST7789 LCD driver (init, pixel, fill)
 └── st7789.h
 ```
-
-![placeholder: final photo of the complete setup - board, LCD, serial terminal all running](placeholder_final_setup.jpg)
 
 ## What's Next
 

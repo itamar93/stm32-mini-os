@@ -12,19 +12,15 @@ We can blink an LED. It proves the toolchain works, the startup code is correct,
 
 We need a way to send actual text from the microcontroller to a computer. We need **UART**.
 
-![placeholder: photo of USB-to-serial connection to Discovery board](placeholder_uart_setup.jpg)
-
 ## What is UART?
 
-UART is one of the simplest serial protocols. Two wires: TX and RX. No clock signal, both sides just agree on a speed (baud rate) ahead of time. Data goes one bit at a time: a start bit, 8 data bits, and a stop bit.
+UART is one of the simplest serial protocols. Two wires: TX and RX. No clock signal — both sides just agree on a speed (baud rate) ahead of time. Data goes one bit at a time: a start bit, 8 data bits, and a stop bit.
 
-The STM32F407 has USART2 on PA2 (TX) and PA3 (RX), which route through the ST-LINK's built-in USB-to-serial converter. So we just plug in the same USB cable we're already using for programming, open a serial terminal, and we're talking.
-
-![placeholder: diagram showing UART TX/RX timing with start bit, 8 data bits, stop bit](placeholder_uart_timing_diagram.png)
+The STM32F407 has USART2 on PA2 (TX) and PA3 (RX). The Discovery board doesn't include a built-in USB-to-serial converter, so we connect an external **USB-to-TTL adapter** to these pins. Plug the adapter into the computer, open a serial terminal like PuTTY at 9600 baud, and we're talking.
 
 ## Reusing the GPIO HAL
 
-The GPIO driver we wrote for the LED? Works here too. Same `gpio_init()`, same `gpio_set_mode()`, just different pins and a different mode. This is how an OS takes shape: build a layer, verify it works, build the next layer on top. Our GPIO HAL is now serving two consumers: the LED driver and the UART driver.
+The GPIO HAL we wrote for the LED works here too. Same `gpio_init()`, same `gpio_set_mode()`, just different pins and a different mode. This is how a layered system takes shape: build a layer, verify it works, build the next layer on top. Our GPIO HAL is now serving two consumers — the LED driver and the UART driver.
 
 For UART, the pins use **Alternate Function** mode instead of plain output. Each pin on the STM32 can be routed to different peripherals via an alternate function selector. PA2 and PA3 use AF7 for USART2:
 
@@ -72,7 +68,7 @@ That's it. Write a byte, wait for the hardware to be ready, write the next one. 
 
 ## Building print_message - Our `printf`
 
-Sending raw bytes is useful, but we really want to send strings. We can't use the standard library's `strlen` because there is no standard library on bare metal. So we wrote our own, and wrapped UART into `print_message()`:
+Sending raw bytes is useful, but we really want to send strings. We can't use the standard library's `strlen` — there is no standard library on bare metal. So we write our own, and wrap UART into `print_message()`:
 
 ```c
 void print_message(const char *msg) {
@@ -80,9 +76,7 @@ void print_message(const char *msg) {
 }
 ```
 
-Now `print_message("Hello, World!\n\r")` shows up on a serial terminal. This might seem trivial, but every OS needs I/O. This is ours. We built the entire path ourselves: clock enable, pin config, baud rate, byte transmission. And this function becomes **critical** when we need to debug the LCD.
-
-![placeholder: screenshot of serial terminal showing "Hello, World!" output](placeholder_serial_hello.png)
+Now `print_message("Hello, World!\n\r")` shows up on a serial terminal. This might seem trivial, but every OS needs I/O. This is ours. We built the entire path: clock enable, pin config, baud rate, byte transmission. And this function becomes **critical** when we need to debug the LCD.
 
 ## LED + Serial Combined
 
@@ -105,8 +99,6 @@ void kmain(void) {
 ```
 
 Every 2 seconds, the LED toggles and a message goes out over serial. We can see exactly what the microcontroller is doing, in real time.
-
-![placeholder: gif of serial terminal output alongside LED toggling](placeholder_serial_led_demo.gif)
 
 ## What We Built (Cumulative)
 
