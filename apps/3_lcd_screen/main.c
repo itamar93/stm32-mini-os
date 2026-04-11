@@ -1,10 +1,4 @@
-#include "drivers/led/led.h"
-#include "hal/systick/systick.h"
-#include "drivers/st7789/st7789.h"
-
-void delay(void) {
-    systick_delay_ms(2000);
-}
+#include "drivers/display/st7789.h"
 
 void kmain(void) {
     ST7789_Init();

@@ -1,4 +1,4 @@
-#include "drivers/st7789/st7789.h"
+#include "drivers/display/st7789.h"
 #include "lib/inc/fonts.h"
 
 void kmain(void) {
